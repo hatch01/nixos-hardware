@@ -63,7 +63,7 @@ in
       deviceTree = {
         overlays = [
           (simple-overlay {
-            target = "i2c0if";
+            target = "i2c0";
             status = "okay";
             inherit (cfg.i2c0) frequency;
           })
