@@ -5,6 +5,7 @@
   ...
 }:
 let
+  cfg = config.hardware.raspberry-pi."4".overlays;
   linux_rpi4 = pkgs.linuxKernel.packages.linux_rpi4.kernel;
   overlayNames = (
     builtins.map (name: lib.removeSuffix ".dtbo" name) (
@@ -47,19 +48,15 @@ in
     ];
   };
 
-  config = {
-    hardware.deviceTree.overlays = map (
-      overlay:
-      if builtins.isString overlay then
-        "${dtbos}/${overlay}.dtbo"
-      else
-        let
-          paramStr = lib.concatStringsSep " " (lib.mapAttrsToList (k: v: "${k}=${v}") overlay.params);
-        in
-        [
-          "${dtbos}/${overlay.name}.dtbo"
-          paramStr
-        ]
-    ) config.hardware.raspberry-pi."4".overlays;
+  config = lib.mkIf (cfg != [ ]) {
+    hardware.deviceTree = {
+      filter = "bcm2711-rpi-4*.dtb";
+      overlays = builtins.map (overlay:
+        if builtins.isString overlay then
+          "${dtbos}/${overlay}.dtbo"
+        else
+          "${dtbos}/${overlay.name}.dtbo ${lib.concatStringsSep " " (lib.mapAttrsToList (k: v: "${k}=${v}") overlay.params)}"
+      ) cfg;
+    };
   };
 }
