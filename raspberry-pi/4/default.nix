@@ -25,6 +25,7 @@
     ./touch-ft5406.nix
     ./tv-hat.nix
     ./xhci.nix
+    ./overlays.nix
   ];
 
   boot = {
