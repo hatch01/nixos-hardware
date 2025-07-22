@@ -2,31 +2,8 @@
 
 let
   cfg = config.hardware.raspberry-pi."4";
-  optionalProperty =
-    name: value: lib.optionalString (value != null) "${name} = <${builtins.toString value}>;";
-  simple-overlay =
-    {
-      target,
-      status,
-      frequency,
-    }:
-    {
-      name = "${target}-${status}-overlay";
-      dtsText = ''
-        /dts-v1/;
-        /plugin/;
-        / {
-          compatible = "brcm,bcm2711";
-          fragment@0 {
-            target = <&${target}>;
-            __overlay__ {
-              status = "${status}";
-              ${optionalProperty "clock-frequency" frequency}
-            };
-          };
-        };
-      '';
-    };
+  overlays = import ./overlay_utils.nix { inherit lib; };
+  inherit (overlays) simple-overlay;
 in
 {
   options.hardware.raspberry-pi."4" = {

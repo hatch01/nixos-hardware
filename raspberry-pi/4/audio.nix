@@ -7,6 +7,8 @@
 
 let
   cfg = config.hardware.raspberry-pi."4".audio;
+  overlays = import ./overlay_utils.nix { inherit lib; };
+  inherit (overlays) simple-overlay;
 in
 {
   options.hardware = {
@@ -21,23 +23,10 @@ in
     hardware.deviceTree = {
       overlays = [
         # Equivalent to dtparam=audio=on
-        {
-          name = "audio-on-overlay";
-          dtsText = ''
-            /dts-v1/;
-            /plugin/;
-            / {
-              compatible = "brcm,bcm2711";
-              fragment@0 {
-                target = <&audio>;
-
-                __overlay__ {
-                  status = "okay";
-                };
-              };
-            };
-          '';
-        }
+        (simple-overlay {
+          target = "audio";
+          status = "okay";
+        })
       ];
     };
 
